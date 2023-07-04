@@ -211,6 +211,20 @@ router.post('/signin',(req,res)=>{
     }
 
 })
+router.post('/userdata',(req,res)=>{
+    const {email}=req.body
+    User.findOne({email:email}).then(savedUser=>{
+        if(!savedUser){
+            return res.status(422).json({error:"Invalid Credentials"})
+
+
+        }
+        else{
+            console.log(savedUser);
+            res.status(200).json({message:"User Found",user:savedUser})
+        }
+    })
+})
 module.exports=router;
 
 
