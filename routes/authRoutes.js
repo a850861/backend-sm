@@ -284,6 +284,68 @@ router.post('/changepassword',(req,res)=>{
     }
 })
 // "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDliZjdkNzUyYjQ3ZTU3MzU4NzNlMGIiLCJpYXQiOjE2ODg1NDY1NDF9.sykmEOIewfePO8PWhyjbYdZWuU1e2CHZeUoL9XVviik"
+router.post('/setusername',(req,res)=>{
+    const {username,email}=req.body
+    if(!username||!email){
+        return res.status(422).json({error:"Please add all the fileds"})
+    }
+    User.find({username}).then(async (savedUser)=>{
+        if(savedUser.length>0){
+            return res.status(422).json({error:"Username already exists"})
+        }
+        else{
+            User.findOne({email:email})
+            .then(async savedUser=>{
+                if(savedUser){
+                    savedUser.username=username
+                    savedUser.save()
+                    .then(user=>{
+                        res.json({message:"Username Updated Successfully"})
+                    })
+                    .catch(err=>{
+                        return res.status(422).json({error:"Server Error"})
+                    })
+                }
+                else{
+                    return res.status(422).json({error:"Invalid Credentials"})
+                }
+            })
+
+        }
+
+    })
+
+})
+router.post('/setdescription',(req,res)=>{
+    const {description,email}=req.body
+    if(!description||!email){
+        return res.status(422).json({error:"Please add all the fields"})
+    }
+    User.findOne({email:email}).then(async savedUser=>{
+        if(savedUser){
+            savedUser.description=description
+            savedUser.save()
+            .then(user=>{
+            return res.json({message:"Description Updated Successfully"})
+            
+            })
+            .catch(err=>{
+            return res.status(422).json({error:"Server Error"})
+
+            })
+            
+
+        }
+        else{
+            return res.status(422).json({error:"Invalid Credentials"})
+        }
+    }) .catch(err=>{
+        return res.status(422).json({error:"Server Error"})
+
+
+    })
+
+})
 module.exports=router;
 
 
