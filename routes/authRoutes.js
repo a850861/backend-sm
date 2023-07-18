@@ -344,8 +344,74 @@ router.post('/setdescription',(req,res)=>{
 
 
     })
-
 })
+    // user search
+    router.post('/searchuser',(req,res)=>{
+        const {keyword}=req.body
+        if(!keyword){
+            res.status(422).json({error:"Please search a username"})
+        }
+        User.find({username:{$regex:keyword,$options:'i'}})
+        .then(user=>{
+            // console.log(user)
+            // res.status(200).send({
+            //     message:"User Found",
+            //     user:user
+            // })
+            let data=[]
+            user.map(item=>{
+                data.push(
+                    {
+                        _id:item._id,
+                        username:item.username,
+                        email:item.email,
+                        description:item.description,
+                        profilepic:item.profilepic
+                    }
+                )
+            })
+            console.log(data)
+            if(data.length==0){
+                return res.status(422).json({error:"No User Found"})
+            }
+            res.status(200).send({
+                message:"User Found",
+                user:data
+            })
+        }).catch(err=>{
+            res.status(422).json({error:"Server Error"})
+        })
+    })
+// other userdata
+    router.post('/otheruserdata',(req,res)=>{
+        const {email}=req.body;
+
+            User.findOne({email:email}).then(userdata=>{
+                if(!userdata){
+                    return res.status(422).json({error:"Invalid Credentials"})
+                }
+                let data={
+                    _id:userdata._id,
+                    username:userdata.username,
+                    email:userdata.email,
+                    description:userdata.description,
+                    profilepic:userdata.profilepic,
+                    posts:userdata.posts,
+                    followers:userdata.followers,
+                    following:userdata.following
+                }
+                res.status(200).send({
+                    message:"User Found",
+                    user:data
+                })
+        })
+        })
+       
+       
+    
+  
+
+
 module.exports=router;
 
 
