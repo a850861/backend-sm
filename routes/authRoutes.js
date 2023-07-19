@@ -409,7 +409,139 @@ router.post('/setdescription',(req,res)=>{
        
        
     // 
-  
+  router.post('/checkfollow',(req,res)=>{
+    const {followfrom,followto}=req.body
+    console.log(followfrom,followto)
+    if(!followfrom||!followto){
+        return res.status(422).json({error:"Invalid Credentials"})
+    }
+    User.findOne({email:followfrom})
+    .then(mainuser=>{
+        if(!mainuser){
+        return res.status(422).json({error:"Invalid Credentials"})
+
+        }
+        else{
+            let data=mainuser.following.includes(followto)
+            console.log(data)
+            if(data==true){
+                res.status(200).json({
+                    message:"User in following list"
+                })
+            }
+            else{
+                res.status(422).json({
+                    message:"User not in following list"
+                })
+            }
+        }
+    }).catch(err=>{
+        return res.status(422).json({error:"Server Error"})
+
+    })
+  })
+  router.post('/followuser',(req,res)=>{
+    const {followfrom,followto}=req.body
+    console.log(followfrom,followto)
+    if(!followfrom||!followto){
+        return res.status(422).json({error:"Invalid Credentials"})
+
+    }
+    User.findOne({email:followfrom})
+    .then(mainuser=>{
+        if(!mainuser){
+            return res.status(422).json({error:"Invalid Credentials"})
+    
+            }
+            else{
+                if(mainuser.following.includes(followto)){
+            return res.status(422).json({error:"Already Following"})
+
+                }
+                else{
+                    mainuser.following.push(followto)
+                    mainuser.save()
+                }
+            }
+            User.findOne({email:followto})
+    .then(otheruser=>{
+        if(!otheruser){
+            return res.status(422).json({error:"Invalid Credentials"})
+    
+            }
+            else{
+                if(otheruser.followers.includes(followfrom)){
+            return res.status(422).json({error:"Already Following"})
+
+                }
+                else{
+                    otheruser.followers.push(followfrom)
+                    otheruser.save()
+                }
+                res.status(200).send({
+                    message:"User Followed"
+                })
+            }
+    })
+    .catch(err=>{
+        return res.status(422).json({error:"Server Error"})
+
+    })
+    })
+  })
+
+
+
+  router.post('/unfollowuser',(req,res)=>{
+    const {followfrom,followto}=req.body
+    console.log(followfrom,followto)
+    if(!followfrom||!followto){
+        return res.status(422).json({error:"Invalid Credentials"})
+
+    }
+    User.findOne({email:followfrom})
+    .then(mainuser=>{
+        if(!mainuser){
+            return res.status(422).json({error:"Invalid Credentials"})
+    
+            }
+            else{
+                if(mainuser.following.includes(followto)){
+                    mainuser.following.pull(followto)
+                    mainuser.save()
+                    User.findOne({email:followto})
+                    .then(otheruser=>{
+                        if(!otheruser){
+            return res.status(422).json({error:"Invalid Credentials"})
+
+                        }
+                        else{
+                            if(otheruser.followers.includes(followfrom)){
+                                otheruser.followers.pull(followfrom)
+                                otheruser.save()
+                    return res.status(200).json({message:"Not Following"})
+
+                        }
+                        else{
+                    return res.status(422).json({error:"Not Following"})
+
+                        }
+                    }
+                    }).catch(err=>{
+                        return res.status(422).json({error:"Server Error"})
+                
+                    })
+                }
+                else{
+                    return res.status(422).json({error:"Not Following"})
+                }
+           
+                
+            }
+       
+    })
+  })
+
 
 
 module.exports=router;
