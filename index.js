@@ -38,15 +38,15 @@ io.on('connection',(socket)=>{
     })
     socket.on("send_message",(data)=>{
         console.log("MESSAGE RECEIVED - ",data)
-        io.emit("receive_message",data)
+        io.emit("recieve_message",data)
     })
    
 })
 httpServer.listen(port1,()=>{
-    console.log("Socketio server is running on port" + port1)
+    console.log("Socketio server is running on port " + port1)
 
 })
 
 app.listen(port,()=>{
-    console.log("server is running on port" + port)
+    console.log("server is running on port " + port)
 })

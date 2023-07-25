@@ -20,7 +20,9 @@ router.post('/savemessagetodb', async(req,res)=>{
             recieverid
         })
         await newMessage.save()
-        res.send("Message Saved Successfully")
+        res.send({
+            message:"Message Saved Successfully"
+        })
         
     } catch (error) {
         console.log('Error while saving meesage to db line 18 -',error)
